@@ -2,11 +2,11 @@
 <div class="inc-exp-container">
     <div>
         <h4>Income</h4>
-        <p id="money-plus" class="money plus">+${{ inc_exp.income.toFixed(2) }}</p>
+        <p id="money-plus" class="money plus">+${{ inc_exp.income }}</p>
     </div>
     <div>
         <h4>Expense</h4>
-        <p id="money-minus" class="money minus">-${{ inc_exp.expense.toFixed(2) }}</p>
+        <p id="money-minus" class="money minus">-${{ inc_exp.expense }}</p>
     </div>
 </div>
 </template>
@@ -23,23 +23,23 @@ let inc_exp = reactive({
     expense: 0
 });
 let prop = defineProps(['modelValue']);
-watch(prop.modelValue.transactions, () => {
-    calculateIncExp(prop.modelValue.transactions);
-})
+
 const calculateIncExp = (transactions) => {
-    transactions.forEach(transaction => {
-        if (transaction.amount > 0) {
-            inc_exp.income += transaction.amount;
-        } else {
-            inc_exp.expense -= transaction.amount;
-        }
-    });
-    console.log(inc_exp);
-    
+    inc_exp.income = transactions
+        .filter(item => item.amount > 0)
+        .reduce((acc, item) => (acc += item.amount), 0)
+        .toFixed(2);
+    inc_exp.expense = transactions
+        .filter(item => item.amount < 0)
+        .reduce((acc, item) => (acc += item.amount), 0)
+        .toFixed(2);
 }
 onMounted(() => {
     calculateIncExp(prop.modelValue.transactions);
-})
+});
+watch(prop.modelValue.transactions, () => {
+    calculateIncExp(prop.modelValue.transactions);
+});
 </script>
 
 <style scoped>
